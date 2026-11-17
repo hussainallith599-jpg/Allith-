@@ -16,7 +16,7 @@ jobs:
         with:
           channel: stable
       - name: Unzip project
-        run: unzip -q allaith_ai_part1.zip
+        run: unzip -q "allaith_ai_part1 (1).zip"
       - name: Create android platform
         working-directory: allaith_ai
         run: |
