@@ -1,0 +1,40 @@
+name: Build APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Unzip project
+        run: unzip -q allaith_ai_part1.zip
+      - name: Create android platform
+        working-directory: allaith_ai
+        run: |
+          mkdir -p /tmp/bk
+          cp -r pubspec.yaml lib assets /tmp/bk/
+          cp android/app/src/main/AndroidManifest.xml /tmp/bk/
+          flutter create --org com.allaith --project-name allaith_ai --platforms=android .
+          cp /tmp/bk/pubspec.yaml pubspec.yaml
+          rm -rf lib && cp -r /tmp/bk/lib lib
+          cp /tmp/bk/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
+          rm -rf test
+      - name: Build
+        working-directory: allaith_ai
+        run: |
+          flutter pub get
+          dart run flutter_launcher_icons
+          flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: allaith-ai-apk
+          path: allaith_ai/build/app/outputs/flutter-apk/app-release.apk
