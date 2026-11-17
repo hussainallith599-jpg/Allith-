@@ -15,8 +15,11 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - name: Unzip project
-        run: unzip -q "allaith_ai_part1 (1).zip"
+      - name: Unzip newest project
+        run: |
+          ZIP=$(ls allaith_ai_v*.zip | sort -V | tail -1)
+          echo "Using $ZIP"
+          unzip -q "$ZIP"
       - name: Create android platform
         working-directory: allaith_ai
         run: |
@@ -31,7 +34,7 @@ jobs:
       - name: Disable lint
         run: |
           mkdir -p ~/.gradle/init.d
-          cat > ~/.gradle/init.d/nolint.gradle <<'EOF'
+          cat > ~/.gradle/init.d/nolint.gradle <<'EOT'
           allprojects {
             tasks.configureEach { t ->
               if (t.name.startsWith('lintVital') || t.name.startsWith('lintAnalyze')) {
@@ -39,7 +42,7 @@ jobs:
               }
             }
           }
-          EOF
+          EOT
       - name: Build
         working-directory: allaith_ai
         run: |
