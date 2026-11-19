@@ -45,10 +45,16 @@ jobs:
           EOT
       - name: Build
         working-directory: allaith_ai
+        shell: bash
         run: |
-          flutter pub get
-          dart run flutter_launcher_icons
-          flutter build apk --release
+          flutter pub get 2>&1 | tee build.log
+          dart run flutter_launcher_icons 2>&1 | tee -a build.log
+          flutter build apk --release 2>&1 | tee -a build.log
+      - name: Show error summary
+        if: failure()
+        working-directory: allaith_ai
+        run: |
+          { echo '## Build error'; echo '```'; grep -n -B3 -A12 -E "Error:|error:|What went wrong|Because" build.log | head -120; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
           name: allaith-ai-apk
